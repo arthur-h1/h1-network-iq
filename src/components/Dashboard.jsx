@@ -80,8 +80,12 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    setTimeout(() => setAnimated(true), 100);
-  }, []);
+    // Reset animation when Dashboard is viewed
+    if (activeNav === 'Dashboard') {
+      setAnimated(false);
+      setTimeout(() => setAnimated(true), 100);
+    }
+  }, [activeNav]);
 
   const overallScore = 87;
   const accuracyScore = 82;
@@ -115,12 +119,47 @@ export default function Dashboard() {
   ];
 
   const ModernDonut = ({ score, size = 140, color, gradientId, label, sublabel, delay = 0 }) => {
+    const [displayScore, setDisplayScore] = useState(0);
     const strokeWidth = 10;
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
     const offset = animated ? circumference - (score / 100) * circumference : circumference;
     const gradients = { teal: ['#14b8a6', '#06b6d4', '#22d3ee'], purple: ['#a855f7', '#c084fc', '#e879f9'], cyan: ['#06b6d4', '#22d3ee', '#67e8f9'] };
     const colors = gradients[color] || gradients.teal;
+
+    useEffect(() => {
+      if (animated) {
+        let start = 0;
+        const duration = 1500;
+        const startTime = Date.now() + delay;
+
+        const animate = () => {
+          const now = Date.now();
+          const elapsed = now - startTime;
+
+          if (elapsed < 0) {
+            requestAnimationFrame(animate);
+            return;
+          }
+
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = progress < 0.5
+            ? 2 * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+          setDisplayScore(Math.floor(eased * score));
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+
+        requestAnimationFrame(animate);
+      } else {
+        setDisplayScore(0);
+      }
+    }, [animated, score, delay]);
+
     return (
       <div className="flex flex-col items-center">
         <div className="relative" style={{ width: size, height: size }}>
@@ -135,10 +174,10 @@ export default function Dashboard() {
             <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={`url(#${gradientId})`} strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" filter={`url(#glow-${gradientId})`} style={{ transition: `stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1) ${delay}ms` }} />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-white">{score}</span>
+            <span className="text-3xl font-bold text-white">{displayScore}</span>
           </div>
         </div>
-        <span className="mt-2 text-xs font-medium text-slate-300">{label}</span>
+        <span className="mt-3 text-sm font-medium text-slate-300">{label}</span>
         {sublabel && <span className="text-xs text-slate-500">{sublabel}</span>}
       </div>
     );
@@ -179,21 +218,73 @@ export default function Dashboard() {
     <>
       {/* Top Row - Scores + Adequacy Metrics */}
       <div className="grid grid-cols-3 gap-4 mb-4">
-        <div className="col-span-2 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-5 transform transition-all duration-500 hover:scale-[1.01] hover:border-teal-500/30" style={{ animation: animated ? 'slideInLeft 0.6s ease-out' : 'none' }}>
-          <div className="flex items-center justify-around">
-            <ModernDonut score={overallScore} size={130} color="teal" gradientId="grad1" label="Overall" sublabel="+2.3%" delay={0} />
-            <div className="w-px h-24 bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
-            <ModernDonut score={accuracyScore} size={110} color="purple" gradientId="grad2" label="Accuracy" sublabel="226 issues" delay={200} />
-            <div className="w-px h-24 bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
-            <ModernDonut score={adequacyScore} size={110} color="cyan" gradientId="grad3" label="Adequacy" sublabel="5 gaps" delay={400} />
-            <div className="w-px h-24 bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
-            <div className="grid grid-cols-2 gap-2">
-              {[{ v: '12.8K', l: 'Providers' }, { v: '247', l: 'Counties' }, { v: '1.4K', l: 'Facilities' }, { v: '89', l: 'Review', c: 'text-amber-400' }].map((s, i) => (
-                <div key={i} className="text-center p-2 bg-slate-800/30 rounded-lg transform transition-all hover:scale-105 hover:bg-slate-800/50" style={{ animation: animated ? `fadeInUp 0.6s ease-out ${i * 0.1}s both` : 'none' }}>
-                  <p className={`text-lg font-bold ${s.c || 'text-white'}`}>{s.v}</p>
-                  <p className="text-xs text-slate-500">{s.l}</p>
-                </div>
-              ))}
+        <div className="col-span-2 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-8 transform transition-all duration-500 hover:scale-[1.01] hover:border-teal-500/30" style={{ animation: animated ? 'slideInLeft 0.6s ease-out' : 'none' }}>
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-shrink-0">
+              <ModernDonut score={overallScore} size={150} color="teal" gradientId="grad1" label="Overall" sublabel="+2.3%" delay={0} />
+            </div>
+            <div className="w-px h-36 bg-gradient-to-b from-transparent via-slate-700 to-transparent flex-shrink-0"></div>
+            <div className="flex-shrink-0">
+              <ModernDonut score={accuracyScore} size={130} color="purple" gradientId="grad2" label="Accuracy" sublabel="226 issues" delay={200} />
+            </div>
+            <div className="w-px h-36 bg-gradient-to-b from-transparent via-slate-700 to-transparent flex-shrink-0"></div>
+            <div className="flex-shrink-0">
+              <ModernDonut score={adequacyScore} size={130} color="cyan" gradientId="grad3" label="Adequacy" sublabel="5 gaps" delay={400} />
+            </div>
+            <div className="w-px h-36 bg-gradient-to-b from-transparent via-slate-700 to-transparent flex-shrink-0"></div>
+            <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+              {[
+                { v: 12800, suffix: 'K', l: 'Providers' },
+                { v: 247, suffix: '', l: 'Counties' },
+                { v: 1400, suffix: 'K', l: 'Facilities' },
+                { v: 89, suffix: '', l: 'Review', c: 'text-amber-400' }
+              ].map((s, i) => {
+                const [displayValue, setDisplayValue] = useState(0);
+
+                useEffect(() => {
+                  if (animated) {
+                    let start = 0;
+                    const duration = 1200;
+                    const startTime = Date.now() + (600 + i * 100);
+
+                    const animate = () => {
+                      const now = Date.now();
+                      const elapsed = now - startTime;
+
+                      if (elapsed < 0) {
+                        requestAnimationFrame(animate);
+                        return;
+                      }
+
+                      const progress = Math.min(elapsed / duration, 1);
+                      const eased = progress < 0.5
+                        ? 2 * progress * progress
+                        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                      setDisplayValue(Math.floor(eased * s.v));
+
+                      if (progress < 1) {
+                        requestAnimationFrame(animate);
+                      }
+                    };
+
+                    requestAnimationFrame(animate);
+                  } else {
+                    setDisplayValue(0);
+                  }
+                }, [animated]);
+
+                const formattedValue = s.suffix === 'K'
+                  ? `${(displayValue / 1000).toFixed(1)}K`
+                  : displayValue.toString();
+
+                return (
+                  <div key={i} className="text-center p-4 bg-slate-800/30 rounded-lg transform transition-all hover:scale-105 hover:bg-slate-800/50 min-w-[90px]" style={{ animation: animated ? `fadeInUp 0.6s ease-out ${i * 0.1}s both` : 'none' }}>
+                    <p className={`text-2xl font-bold ${s.c || 'text-white'}`}>{formattedValue}</p>
+                    <p className="text-xs text-slate-500 mt-1">{s.l}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -266,12 +357,24 @@ export default function Dashboard() {
                     <span className={`w-2 h-2 rounded-full transition-all group-hover:scale-150 ${spec.status === 'critical' ? 'bg-rose-500 animate-pulse' : spec.status === 'review' ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
                   </div>
                 </div>
-                <div className="flex gap-1 h-1 group-hover:h-1.5 transition-all">
+                <div className="flex gap-1 h-1.5 group-hover:h-2 transition-all">
                   <div className="flex-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full transition-all group-hover:shadow-lg group-hover:shadow-purple-500/50" style={{ width: animated ? `${spec.accuracy}%` : '0%', transition: 'width 0.7s' }}></div>
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full transition-all group-hover:shadow-lg group-hover:shadow-purple-500/50"
+                      style={{
+                        width: animated ? `${spec.accuracy}%` : '0%',
+                        transition: `width 1.2s cubic-bezier(0.4, 0, 0.2, 1) ${0.7 + idx * 0.1}s`
+                      }}
+                    ></div>
                   </div>
                   <div className="flex-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full transition-all group-hover:shadow-lg group-hover:shadow-cyan-500/50" style={{ width: animated ? `${spec.adequacy}%` : '0%', transition: 'width 0.7s' }}></div>
+                    <div
+                      className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full transition-all group-hover:shadow-lg group-hover:shadow-cyan-500/50"
+                      style={{
+                        width: animated ? `${spec.adequacy}%` : '0%',
+                        transition: `width 1.2s cubic-bezier(0.4, 0, 0.2, 1) ${0.7 + idx * 0.1}s`
+                      }}
+                    ></div>
                   </div>
                 </div>
               </div>
