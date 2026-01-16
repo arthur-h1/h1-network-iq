@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { calculateAllImpacts, getImpactSummary } from '../utils/impactCalculator';
 
-export default function ImpactTracker({ removedProviders, isVisible }) {
+export default function ImpactTracker({ removedProviders, isVisible, onLocationClick }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -139,12 +139,20 @@ export default function ImpactTracker({ removedProviders, isVisible }) {
           {/* Location */}
           <div className="col-span-3">
             <p className="text-xs text-slate-400 mb-1">Location</p>
-            <p className="text-white text-sm font-medium flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button
+              onClick={() => onLocationClick && onLocationClick(currentImpact)}
+              className="text-white text-sm font-medium flex items-center gap-1.5 hover:text-teal-400 transition-colors cursor-pointer group"
+            >
+              <svg className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {currentImpact.location}
-            </p>
+              <span className="underline decoration-dotted decoration-slate-600 group-hover:decoration-teal-400">
+                {currentImpact.location}
+              </span>
+              <svg className="w-3 h-3 text-slate-500 group-hover:text-teal-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </button>
           </div>
 
           {/* Metric */}

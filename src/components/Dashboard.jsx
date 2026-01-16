@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import MapView from './MapView';
 import ProviderDirectory from './ProviderDirectory';
 import ImpactTracker from './ImpactTracker';
+import Reports from './Reports';
 
 export default function Dashboard() {
   const [selectedNetwork, setSelectedNetwork] = useState('all');
@@ -11,6 +12,61 @@ export default function Dashboard() {
   const [selectedState, setSelectedState] = useState(null);
   const [removedProviders, setRemovedProviders] = useState(new Set());
   const [isSimulationMode, setIsSimulationMode] = useState(false);
+
+  // State name to code mapping for impact tracker clicks
+  const stateNameToCode = {
+    'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR',
+    'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE',
+    'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID',
+    'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS',
+    'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
+    'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS',
+    'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV',
+    'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+    'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK',
+    'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+    'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT',
+    'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV',
+    'Wisconsin': 'WI', 'Wyoming': 'WY',
+    'AL': 'AL', 'AK': 'AK', 'AZ': 'AZ', 'AR': 'AR', 'CA': 'CA', 'CO': 'CO',
+    'CT': 'CT', 'DE': 'DE', 'FL': 'FL', 'GA': 'GA', 'HI': 'HI', 'ID': 'ID',
+    'IL': 'IL', 'IN': 'IN', 'IA': 'IA', 'KS': 'KS', 'KY': 'KY', 'LA': 'LA',
+    'ME': 'ME', 'MD': 'MD', 'MA': 'MA', 'MI': 'MI', 'MN': 'MN', 'MS': 'MS',
+    'MO': 'MO', 'MT': 'MT', 'NE': 'NE', 'NV': 'NV', 'NH': 'NH', 'NJ': 'NJ',
+    'NM': 'NM', 'NY': 'NY', 'NC': 'NC', 'ND': 'ND', 'OH': 'OH', 'OK': 'OK',
+    'OR': 'OR', 'PA': 'PA', 'RI': 'RI', 'SC': 'SC', 'SD': 'SD', 'TN': 'TN',
+    'TX': 'TX', 'UT': 'UT', 'VT': 'VT', 'VA': 'VA', 'WA': 'WA', 'WV': 'WV',
+    'WI': 'WI', 'WY': 'WY'
+  };
+
+  // Handle clicking on a location in the impact tracker
+  const handleImpactLocationClick = (impact) => {
+    // Switch to Map view if not already there
+    if (activeNav !== 'Map') {
+      setActiveNav('Map');
+    }
+
+    // Extract state code from location string
+    // Location format: "Los Angeles County, CA" or "CA state-wide" or "CA"
+    const location = impact.location;
+    let stateCode = null;
+
+    // Try to extract state from various formats
+    if (location.includes('state-wide')) {
+      stateCode = location.split(' ')[0]; // "CA state-wide" -> "CA"
+    } else if (location.includes(',')) {
+      const parts = location.split(',');
+      const statePart = parts[parts.length - 1].trim(); // Get last part after comma
+      stateCode = stateNameToCode[statePart] || statePart;
+    } else {
+      stateCode = stateNameToCode[location] || location;
+    }
+
+    // Set the selected state if we found a valid code
+    if (stateCode && stateCode.length === 2) {
+      setSelectedState(stateCode);
+    }
+  };
 
   useEffect(() => {
     setTimeout(() => setAnimated(true), 100);
@@ -112,7 +168,7 @@ export default function Dashboard() {
     <>
       {/* Top Row - Scores + Adequacy Metrics */}
       <div className="grid grid-cols-3 gap-4 mb-4">
-        <div className="col-span-2 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-5">
+        <div className="col-span-2 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-5 transform transition-all duration-500 hover:scale-[1.01] hover:border-teal-500/30" style={{ animation: animated ? 'slideInLeft 0.6s ease-out' : 'none' }}>
           <div className="flex items-center justify-around">
             <ModernDonut score={overallScore} size={130} color="teal" gradientId="grad1" label="Overall" sublabel="+2.3%" delay={0} />
             <div className="w-px h-24 bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
@@ -122,7 +178,7 @@ export default function Dashboard() {
             <div className="w-px h-24 bg-gradient-to-b from-transparent via-slate-700 to-transparent"></div>
             <div className="grid grid-cols-2 gap-2">
               {[{ v: '12.8K', l: 'Providers' }, { v: '247', l: 'Counties' }, { v: '1.4K', l: 'Facilities' }, { v: '89', l: 'Review', c: 'text-amber-400' }].map((s, i) => (
-                <div key={i} className="text-center p-2 bg-slate-800/30 rounded-lg">
+                <div key={i} className="text-center p-2 bg-slate-800/30 rounded-lg transform transition-all hover:scale-105 hover:bg-slate-800/50" style={{ animation: animated ? `fadeInUp 0.6s ease-out ${i * 0.1}s both` : 'none' }}>
                   <p className={`text-lg font-bold ${s.c || 'text-white'}`}>{s.v}</p>
                   <p className="text-xs text-slate-500">{s.l}</p>
                 </div>
@@ -132,43 +188,47 @@ export default function Dashboard() {
         </div>
 
         {/* Adequacy Metrics Cards */}
-        <div className="space-y-3">
-          <MetricCard
-            icon={<svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
-            title="Avg. Drive Time" value={adequacyMetrics.driveTime.avg} unit="min" target="≤15 min"
-            status={adequacyMetrics.driveTime.status} trend={adequacyMetrics.driveTime.trend} subtitle="To nearest provider" />
-          <MetricCard
-            icon={<svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
-            title="Provider Ratio" value={`1:${adequacyMetrics.providerRatio.per}`} unit="" target="≤1:2000"
-            status={adequacyMetrics.providerRatio.status} trend={adequacyMetrics.providerRatio.trend} subtitle="Per beneficiaries" />
+        <div className="space-y-3" style={{ animation: animated ? 'slideInRight 0.6s ease-out' : 'none' }}>
+          <div className="transform transition-all hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/10" style={{ animation: animated ? 'fadeInUp 0.6s ease-out 0.2s both' : 'none' }}>
+            <MetricCard
+              icon={<svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+              title="Avg. Drive Time" value={adequacyMetrics.driveTime.avg} unit="min" target="≤15 min"
+              status={adequacyMetrics.driveTime.status} trend={adequacyMetrics.driveTime.trend} subtitle="To nearest provider" />
+          </div>
+          <div className="transform transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/10" style={{ animation: animated ? 'fadeInUp 0.6s ease-out 0.3s both' : 'none' }}>
+            <MetricCard
+              icon={<svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
+              title="Provider Ratio" value={`1:${adequacyMetrics.providerRatio.per}`} unit="" target="≤1:2000"
+              status={adequacyMetrics.providerRatio.status} trend={adequacyMetrics.providerRatio.trend} subtitle="Per beneficiaries" />
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-5 gap-4">
         {/* Issues */}
-        <div className="col-span-3 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4">
+        <div className="col-span-3 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4 transform transition-all hover:border-rose-500/30" style={{ animation: animated ? 'fadeInUp 0.6s ease-out 0.4s both' : 'none' }}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-white">Priority Issues</h2>
             <div className="flex gap-2 text-xs">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500"></span>High</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span>Med</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>High</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>Med</span>
             </div>
           </div>
           <div className="space-y-2">
-            {criticalIssues.map((issue) => {
+            {criticalIssues.map((issue, idx) => {
               const s = getSeverityStyles(issue.severity);
               return (
-                <div key={issue.id} className="group flex items-center gap-3 p-2.5 bg-slate-800/30 hover:bg-slate-800/60 rounded-xl transition-all cursor-pointer">
-                  <div className={`w-1 h-8 rounded-full ${s.dot}`}></div>
+                <div key={issue.id} className="group flex items-center gap-3 p-2.5 bg-slate-800/30 hover:bg-slate-800/60 rounded-xl transition-all cursor-pointer hover:scale-[1.02] hover:shadow-lg" style={{ animation: animated ? `slideInLeft 0.5s ease-out ${0.5 + idx * 0.1}s both` : 'none' }}>
+                  <div className={`w-1 h-8 rounded-full ${s.dot} transition-all group-hover:h-10 group-hover:shadow-lg ${s.glow}`}></div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-xs font-medium text-white">{issue.title}</p>
-                      <span className={`px-1.5 py-0.5 text-xs rounded ${issue.type === 'accuracy' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}`}>{issue.type}</span>
+                      <p className="text-xs font-medium text-white group-hover:text-teal-400 transition-colors">{issue.title}</p>
+                      <span className={`px-1.5 py-0.5 text-xs rounded transition-all group-hover:scale-110 ${issue.type === 'accuracy' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}`}>{issue.type}</span>
                     </div>
                     <p className="text-xs text-slate-500">{issue.specialty} · {issue.county}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-base font-bold text-white">{issue.count}</p>
+                    <p className="text-base font-bold text-white group-hover:scale-110 transition-transform">{issue.count}</p>
                   </div>
                 </div>
               );
@@ -177,7 +237,7 @@ export default function Dashboard() {
         </div>
 
         {/* Specialty with adequacy metrics */}
-        <div className="col-span-2 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4">
+        <div className="col-span-2 bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4 transform transition-all hover:border-cyan-500/30" style={{ animation: animated ? 'fadeInUp 0.6s ease-out 0.5s both' : 'none' }}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-white">By Specialty</h2>
             <div className="flex gap-2 text-xs text-slate-400">
@@ -186,21 +246,21 @@ export default function Dashboard() {
           </div>
           <div className="space-y-2">
             {specialtyData.map((spec, idx) => (
-              <div key={idx} className="group cursor-pointer p-2 rounded-lg hover:bg-slate-800/30 transition-all">
+              <div key={idx} className="group cursor-pointer p-2 rounded-lg hover:bg-slate-800/30 transition-all hover:scale-[1.02] hover:shadow-md" style={{ animation: animated ? `slideInRight 0.5s ease-out ${0.6 + idx * 0.1}s both` : 'none' }}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-white">{spec.name}</span>
+                  <span className="text-xs font-medium text-white group-hover:text-teal-400 transition-colors">{spec.name}</span>
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs ${spec.driveTime > 20 ? 'text-rose-400' : spec.driveTime > 15 ? 'text-amber-400' : 'text-emerald-400'}`}>{spec.driveTime}m</span>
-                    <span className={`text-xs ${spec.ratio > 2000 ? 'text-rose-400' : spec.ratio > 1500 ? 'text-amber-400' : 'text-emerald-400'}`}>1:{spec.ratio}</span>
-                    <span className={`w-2 h-2 rounded-full ${spec.status === 'critical' ? 'bg-rose-500' : spec.status === 'review' ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                    <span className={`text-xs transition-all group-hover:scale-110 ${spec.driveTime > 20 ? 'text-rose-400' : spec.driveTime > 15 ? 'text-amber-400' : 'text-emerald-400'}`}>{spec.driveTime}m</span>
+                    <span className={`text-xs transition-all group-hover:scale-110 ${spec.ratio > 2000 ? 'text-rose-400' : spec.ratio > 1500 ? 'text-amber-400' : 'text-emerald-400'}`}>1:{spec.ratio}</span>
+                    <span className={`w-2 h-2 rounded-full transition-all group-hover:scale-150 ${spec.status === 'critical' ? 'bg-rose-500 animate-pulse' : spec.status === 'review' ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
                   </div>
                 </div>
-                <div className="flex gap-1 h-1">
+                <div className="flex gap-1 h-1 group-hover:h-1.5 transition-all">
                   <div className="flex-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full" style={{ width: animated ? `${spec.accuracy}%` : '0%', transition: 'width 0.7s' }}></div>
+                    <div className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full transition-all group-hover:shadow-lg group-hover:shadow-purple-500/50" style={{ width: animated ? `${spec.accuracy}%` : '0%', transition: 'width 0.7s' }}></div>
                   </div>
                   <div className="flex-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full" style={{ width: animated ? `${spec.adequacy}%` : '0%', transition: 'width 0.7s' }}></div>
+                    <div className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full transition-all group-hover:shadow-lg group-hover:shadow-cyan-500/50" style={{ width: animated ? `${spec.adequacy}%` : '0%', transition: 'width 0.7s' }}></div>
                   </div>
                 </div>
               </div>
@@ -213,9 +273,49 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-auto">
+      <style>{`
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes slideInRight {
+          from {
+            opacity: 0;
+            transform: translateX(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+      `}</style>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
       {/* Sidebar */}
@@ -255,7 +355,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-lg font-bold text-white">
-              {activeNav === 'Map' ? 'Network Adequacy Map' : activeNav === 'Directory' ? 'Provider Directory' : 'Network Health'}
+              {activeNav === 'Map' ? 'Network Adequacy Map' : activeNav === 'Directory' ? 'Provider Directory' : activeNav === 'Reports' ? 'Reports & Exports' : 'Network Health'}
             </h1>
             <p className="text-slate-500 text-xs">Last sync: Today at 9:42 AM</p>
           </div>
@@ -268,11 +368,14 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Impact Tracker - Shows when simulation is active */}
-        <ImpactTracker
-          removedProviders={removedProviders}
-          isVisible={isSimulationMode}
-        />
+        {/* Impact Tracker - Shows when simulation is active in Dashboard, Map or Directory views */}
+        {(activeNav === 'Dashboard' || activeNav === 'Map' || activeNav === 'Directory') && (
+          <ImpactTracker
+            removedProviders={removedProviders}
+            isVisible={isSimulationMode}
+            onLocationClick={handleImpactLocationClick}
+          />
+        )}
 
         {activeNav === 'Map' ? (
           <MapView
@@ -288,6 +391,11 @@ export default function Dashboard() {
             removedProviders={removedProviders}
             setRemovedProviders={setRemovedProviders}
             onSimulationChange={setIsSimulationMode}
+          />
+        ) : activeNav === 'Reports' ? (
+          <Reports
+            removedProviders={removedProviders}
+            isSimulationMode={isSimulationMode}
           />
         ) : (
           <DashboardView />
