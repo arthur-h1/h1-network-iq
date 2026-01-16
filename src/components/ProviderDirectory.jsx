@@ -10,7 +10,8 @@ import {
 export default function ProviderDirectory({
   removedProviders,
   setRemovedProviders,
-  onSimulationChange
+  onSimulationChange,
+  onShowOnMap
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [stateFilter, setStateFilter] = useState('');
@@ -37,9 +38,18 @@ export default function ProviderDirectory({
       removedProviderIds: new Set() // Don't filter removed providers
     });
 
-    setProviders(result.providers);
+    // Sort: removed providers at the top
+    const sortedProviders = result.providers.sort((a, b) => {
+      const aRemoved = removedProviders.has(a.id);
+      const bRemoved = removedProviders.has(b.id);
+      if (aRemoved && !bRemoved) return -1;
+      if (!aRemoved && bRemoved) return 1;
+      return 0;
+    });
+
+    setProviders(sortedProviders);
     setHasMore(result.hasMore);
-  }, [currentPage, searchTerm, stateFilter, specialtyFilter, confidenceFilter]);
+  }, [currentPage, searchTerm, stateFilter, specialtyFilter, confidenceFilter, removedProviders]);
 
   // Confidence distribution
   const confidenceStats = useMemo(() => {
@@ -167,7 +177,7 @@ export default function ProviderDirectory({
                 <th className="text-left px-4 py-3 text-slate-400 font-medium">Provider</th>
                 <th className="text-left px-4 py-3 text-slate-400 font-medium">NPI</th>
                 <th className="text-left px-4 py-3 text-slate-400 font-medium">Specialty</th>
-                <th className="text-left px-4 py-3 text-slate-400 font-medium">State</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium">Location</th>
                 <th className="text-left px-4 py-3 text-slate-400 font-medium">Confidence</th>
                 <th className="text-left px-4 py-3 text-slate-400 font-medium">Status</th>
                 <th className="text-right px-4 py-3 text-slate-400 font-medium">Actions</th>
@@ -194,9 +204,25 @@ export default function ProviderDirectory({
                       {provider.specialty}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded ${isRemoved ? 'bg-slate-700/20 text-slate-600 line-through' : 'bg-slate-700/30 text-slate-300'}`}>
-                        {provider.state}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-0.5 rounded ${isRemoved ? 'bg-slate-700/20 text-slate-600 line-through' : 'bg-slate-700/30 text-slate-300'}`}>
+                          {provider.state}
+                        </span>
+                        {onShowOnMap && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onShowOnMap(provider);
+                            }}
+                            className="p-1 hover:bg-slate-700/50 rounded transition-colors group"
+                            title="Show on map"
+                          >
+                            <svg className="w-3.5 h-3.5 text-slate-500 group-hover:text-teal-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs ${
