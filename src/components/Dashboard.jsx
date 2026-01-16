@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import MapView from './MapView';
+import ProviderDirectory from './ProviderDirectory';
+import ImpactTracker from './ImpactTracker';
 
 export default function Dashboard() {
   const [selectedNetwork, setSelectedNetwork] = useState('all');
   const [activeNav, setActiveNav] = useState('Dashboard');
   const [animated, setAnimated] = useState(false);
   const [hoveredState, setHoveredState] = useState(null);
-  const [hoveredCounty, setHoveredCounty] = useState(null);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [selectedState, setSelectedState] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [removedProviders, setRemovedProviders] = useState(new Set());
+  const [isSimulationMode, setIsSimulationMode] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setAnimated(true), 100);
@@ -103,8 +102,8 @@ export default function Dashboard() {
 
   const navItems = [
     { name: 'Dashboard', icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z' },
-    { name: 'Networks', icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
     { name: 'Map', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
+    { name: 'Directory', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
     { name: 'Reports', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
   ];
 
@@ -255,31 +254,40 @@ export default function Dashboard() {
       <div className="ml-48 p-4 relative">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-lg font-bold text-white">{activeNav === 'Map' ? 'Network Adequacy Map' : 'Network Health'}</h1>
+            <h1 className="text-lg font-bold text-white">
+              {activeNav === 'Map' ? 'Network Adequacy Map' : activeNav === 'Directory' ? 'Provider Directory' : 'Network Health'}
+            </h1>
             <p className="text-slate-500 text-xs">Last sync: Today at 9:42 AM</p>
           </div>
-          <select value={selectedNetwork} onChange={(e) => setSelectedNetwork(e.target.value)} className="px-3 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-xs text-white">
-            <option value="all">All Networks</option>
-            <option value="ma">Medicare Advantage</option>
-            <option value="medicaid">Medicaid</option>
-          </select>
+          {activeNav !== 'Directory' && (
+            <select value={selectedNetwork} onChange={(e) => setSelectedNetwork(e.target.value)} className="px-3 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-xs text-white">
+              <option value="all">All Networks</option>
+              <option value="ma">Medicare Advantage</option>
+              <option value="medicaid">Medicaid</option>
+            </select>
+          )}
         </div>
+
+        {/* Impact Tracker - Shows when simulation is active */}
+        <ImpactTracker
+          removedProviders={removedProviders}
+          isVisible={isSimulationMode}
+        />
+
         {activeNav === 'Map' ? (
           <MapView
             hoveredState={hoveredState}
             setHoveredState={setHoveredState}
-            hoveredCounty={hoveredCounty}
-            setHoveredCounty={setHoveredCounty}
-            zoomLevel={zoomLevel}
-            setZoomLevel={setZoomLevel}
-            panOffset={panOffset}
-            setPanOffset={setPanOffset}
             selectedState={selectedState}
             setSelectedState={setSelectedState}
-            isDragging={isDragging}
-            setIsDragging={setIsDragging}
-            dragStart={dragStart}
-            setDragStart={setDragStart}
+            isSimulationMode={isSimulationMode}
+            removedProviders={removedProviders}
+          />
+        ) : activeNav === 'Directory' ? (
+          <ProviderDirectory
+            removedProviders={removedProviders}
+            setRemovedProviders={setRemovedProviders}
+            onSimulationChange={setIsSimulationMode}
           />
         ) : (
           <DashboardView />
