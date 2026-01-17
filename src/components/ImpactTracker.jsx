@@ -55,7 +55,7 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
       case 'warning':
         return 'border-amber-500/50 bg-amber-500/10';
       default:
-        return 'border-teal-500/50 bg-teal-500/10';
+        return 'border-blue-600/50 bg-blue-600/10';
     }
   };
 
@@ -75,7 +75,7 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
         );
       default:
         return (
-          <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         );
@@ -89,23 +89,23 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
       case 'warning':
         return <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-medium">Warning</span>;
       default:
-        return <span className="px-2 py-0.5 bg-teal-500/20 text-teal-400 text-xs rounded-full font-medium">Info</span>;
+        return <span className="px-2 py-0.5 bg-blue-600/20 text-blue-400 text-xs rounded-full font-medium">Info</span>;
     }
   };
 
   return (
     <div className={`mb-4 transition-all duration-300 ${isAnimating ? 'opacity-50 scale-98' : 'opacity-100 scale-100'}`}>
-      <div className={`border-2 rounded-2xl p-4 backdrop-blur-xl ${getSeverityColor(currentImpact.severity)}`}>
+      <div className={`border-2 rounded-2xl p-4 bg-white shadow-sm ${getSeverityColor(currentImpact.severity)}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             {getSeverityIcon(currentImpact.severity)}
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-white font-semibold text-sm">Impact Analysis</h3>
+                <h3 className="text-slate-900 font-semibold text-sm">Impact Analysis</h3>
                 {getSeverityBadge(currentImpact.severity)}
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Change {currentIndex + 1} of {impacts.length} • {summary.critical} critical, {summary.warning} warnings
               </p>
             </div>
@@ -116,7 +116,7 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
             <button
               onClick={handlePrevious}
               disabled={currentIndex === 0}
-              className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all border border-slate-300"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -125,7 +125,7 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
             <button
               onClick={handleNext}
               disabled={currentIndex === impacts.length - 1}
-              className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all border border-slate-300"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -138,18 +138,18 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
         <div className="grid grid-cols-12 gap-4">
           {/* Location */}
           <div className="col-span-3">
-            <p className="text-xs text-slate-400 mb-1">Location</p>
+            <p className="text-xs text-slate-600 mb-1">Location</p>
             <button
               onClick={() => onLocationClick && onLocationClick(currentImpact)}
-              className="text-white text-sm font-medium flex items-center gap-1.5 hover:text-teal-400 transition-colors cursor-pointer group"
+              className="text-slate-900 text-sm font-medium flex items-center gap-1.5 hover:text-blue-600 transition-colors cursor-pointer group"
             >
-              <svg className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span className="underline decoration-dotted decoration-slate-600 group-hover:decoration-teal-400">
+              <span className="underline decoration-dotted decoration-slate-400 group-hover:decoration-blue-600">
                 {currentImpact.location}
               </span>
-              <svg className="w-3 h-3 text-slate-500 group-hover:text-teal-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </button>
@@ -157,17 +157,17 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
 
           {/* Metric */}
           <div className="col-span-2">
-            <p className="text-xs text-slate-400 mb-1">Metric</p>
-            <p className="text-white text-sm font-medium">{currentImpact.metric}</p>
+            <p className="text-xs text-slate-600 mb-1">Metric</p>
+            <p className="text-slate-900 text-sm font-medium">{currentImpact.metric}</p>
           </div>
 
           {/* Change */}
           <div className="col-span-2">
-            <p className="text-xs text-slate-400 mb-1">Change</p>
+            <p className="text-xs text-slate-600 mb-1">Change</p>
             <p className={`text-sm font-bold ${
               currentImpact.severity === 'critical' ? 'text-rose-400' :
               currentImpact.severity === 'warning' ? 'text-amber-400' :
-              'text-teal-400'
+              'text-blue-400'
             }`}>
               {currentImpact.change}
             </p>
@@ -175,22 +175,22 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
 
           {/* Description */}
           <div className="col-span-5">
-            <p className="text-xs text-slate-400 mb-1">Details</p>
-            <p className="text-white text-sm">{currentImpact.description}</p>
+            <p className="text-xs text-slate-600 mb-1">Details</p>
+            <p className="text-slate-900 text-sm">{currentImpact.description}</p>
           </div>
         </div>
 
         {/* Provider Info */}
         {currentImpact.details && (
-          <div className="mt-3 pt-3 border-t border-slate-700/30">
+          <div className="mt-3 pt-3 border-t border-slate-200">
             <div className="flex items-center gap-4 text-xs">
-              <span className="text-slate-400">
+              <span className="text-slate-600">
                 Affected by removal of:
               </span>
-              <span className="text-white font-medium">
+              <span className="text-slate-900 font-medium">
                 {currentImpact.details.provider}
               </span>
-              <span className="px-2 py-0.5 bg-slate-700/30 text-slate-300 rounded text-xs">
+              <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-xs">
                 {currentImpact.details.specialty}
               </span>
             </div>
@@ -204,9 +204,9 @@ export default function ImpactTracker({ removedProviders, isVisible, onLocationC
               <div
                 key={idx}
                 className={`h-1 flex-1 rounded-full transition-all ${
-                  idx === currentIndex ? 'bg-white' :
-                  idx < currentIndex ? 'bg-slate-600' :
-                  'bg-slate-800'
+                  idx === currentIndex ? 'bg-slate-900' :
+                  idx < currentIndex ? 'bg-slate-400' :
+                  'bg-slate-200'
                 }`}
               />
             ))}

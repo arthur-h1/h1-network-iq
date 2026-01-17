@@ -700,18 +700,18 @@ export default function MapView({
 
   return (
     <div className="relative h-full flex flex-col">
-      <div className="bg-slate-900/30 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4 flex-1 flex flex-col">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 flex-1 flex flex-col shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <div>
             {isSimulationMode && (
-              <span className="px-2 py-1 bg-amber-500/20 text-amber-400 text-xs rounded-full border border-amber-500/30 flex items-center gap-1 mb-2">
+              <span className="px-2 py-1 bg-amber-500/20 text-amber-600 text-xs rounded-full border border-amber-500/40 flex items-center gap-1 mb-2">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 What-If Simulation
               </span>
             )}
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               {isDriveTimeMode
                 ? 'Click anywhere on the map to see 15, 30, and 45-minute driving areas'
                 : mapDisplayMode === 'directory'
@@ -744,7 +744,7 @@ export default function MapView({
                     setSelectedProviderId(null);
                     setIsDriveTimeMode(false);
                   }}
-                  className="px-3 py-1.5 text-xs rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-600"
+                  className="px-3 py-1.5 text-xs rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap bg-slate-100 border border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-200"
                   title="Clear all selections"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -769,7 +769,7 @@ export default function MapView({
                   className={`px-3 py-1.5 text-xs rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap ${
                     isDriveTimeMode
                       ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                      : 'bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
                   }`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -778,16 +778,16 @@ export default function MapView({
                   {isDriveTimeMode ? 'Exit Drive Time' : 'Drive Time'}
                 </button>
                 {!isDriveTimeMode && (
-                  <div className="flex bg-slate-800/50 border border-slate-700/50 rounded-lg overflow-hidden">
+                  <div className="flex bg-slate-100 border border-slate-300 rounded-lg overflow-hidden">
                     <button
                       onClick={() => setMapDisplayMode('adequacy')}
-                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${mapDisplayMode === 'adequacy' ? 'bg-teal-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${mapDisplayMode === 'adequacy' ? 'bg-teal-600 text-white' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'}`}
                     >
                       Adequacy
                     </button>
                     <button
                       onClick={() => setMapDisplayMode('directory')}
-                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${mapDisplayMode === 'directory' ? 'bg-teal-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${mapDisplayMode === 'directory' ? 'bg-teal-600 text-white' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'}`}
                     >
                       Directory
                     </button>
@@ -796,21 +796,21 @@ export default function MapView({
               </div>
               {!isDriveTimeMode && mapDisplayMode === 'adequacy' && (
                 <div className="flex items-center gap-2">
-                  <div className="flex bg-slate-800/50 border border-slate-700/50 rounded-lg overflow-hidden">
+                  <div className="flex bg-slate-100 border border-slate-300 rounded-lg overflow-hidden">
                     <button
                       onClick={() => setViewMode('state')}
-                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${viewMode === 'state' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${viewMode === 'state' ? 'bg-cyan-600 text-white' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'}`}
                     >
                       States
                     </button>
                     <button
                       onClick={() => setViewMode('county')}
-                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${viewMode === 'county' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                      className={`px-3 py-1.5 text-xs transition-colors whitespace-nowrap ${viewMode === 'county' ? 'bg-cyan-600 text-white' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'}`}
                     >
                       Counties
                     </button>
                   </div>
-                  <select value={mapFilter} onChange={(e) => setMapFilter(e.target.value)} className="px-3 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-xs text-white">
+                  <select value={mapFilter} onChange={(e) => setMapFilter(e.target.value)} className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900">
                     <option value="all">All Metrics</option>
                     <option value="driveTime">Drive Time</option>
                     <option value="ratio">Provider Ratio</option>
@@ -823,7 +823,7 @@ export default function MapView({
 
         {/* Legend */}
         {!isDriveTimeMode ? (
-          <div className="flex items-center gap-4 mb-3 text-xs text-slate-400">
+          <div className="flex items-center gap-4 mb-3 text-xs text-slate-600">
             <span>Legend:</span>
             {mapDisplayMode === 'directory' ? (
               <>
@@ -932,13 +932,13 @@ export default function MapView({
           </div>
         )}
 
-        <div className="relative rounded-xl overflow-hidden flex-1 border border-slate-800/50">
+        <div className="relative rounded-xl overflow-hidden flex-1 border border-slate-200">
           <ReactMapGL
             key={viewMode}
             ref={mapRef}
             {...viewState}
             onMove={evt => setViewState(evt.viewState)}
-            mapStyle="mapbox://styles/mapbox/dark-v11"
+            mapStyle="mapbox://styles/mapbox/streets-v12"
             mapboxAccessToken={MAPBOX_TOKEN}
             interactiveLayerIds={
               mapDisplayMode === 'directory' ? ['providers-circle', 'providers-clusters', 'beneficiaries-clusters', 'beneficiaries-unclustered'] :
@@ -1437,16 +1437,16 @@ export default function MapView({
 
           {/* Menu */}
           <div
-            className="fixed z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl min-w-[240px]"
+            className="fixed z-50 bg-white border border-slate-300 rounded-lg shadow-xl min-w-[240px]"
             style={{
               left: `${contextMenu.x}px`,
               top: `${contextMenu.y}px`,
             }}
           >
             {/* Provider Info Header */}
-            <div className="px-4 py-3 border-b border-slate-700/50">
-              <div className="font-medium text-white text-sm">{contextMenu.provider.name}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{contextMenu.provider.specialty}</div>
+            <div className="px-4 py-3 border-b border-slate-200">
+              <div className="font-medium text-slate-900 text-sm">{contextMenu.provider.name}</div>
+              <div className="text-xs text-slate-600 mt-0.5">{contextMenu.provider.specialty}</div>
               <div className="text-xs text-slate-500 mt-0.5">{contextMenu.provider.address}</div>
             </div>
 
@@ -1455,7 +1455,7 @@ export default function MapView({
               {contextMenu.provider.isRemoved ? (
                 <button
                   onClick={handleRestoreProvider}
-                  className="w-full px-4 py-2 text-left text-sm text-emerald-400 hover:bg-slate-700/50 flex items-center gap-2 transition-colors"
+                  className="w-full px-4 py-2 text-left text-sm text-emerald-600 hover:bg-slate-50 flex items-center gap-2 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1465,7 +1465,7 @@ export default function MapView({
               ) : (
                 <button
                   onClick={handleRemoveProvider}
-                  className="w-full px-4 py-2 text-left text-sm text-rose-400 hover:bg-slate-700/50 flex items-center gap-2 transition-colors"
+                  className="w-full px-4 py-2 text-left text-sm text-rose-600 hover:bg-slate-50 flex items-center gap-2 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
