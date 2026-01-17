@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [selectedState, setSelectedState] = useState(null);
   const [removedProviders, setRemovedProviders] = useState(new Set());
   const [isSimulationMode, setIsSimulationMode] = useState(false);
+  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
 
   // State name to code mapping for impact tracker clicks
   const stateNameToCode = {
@@ -48,6 +49,13 @@ export default function Dashboard() {
     // We'll need to pass the provider data to MapView
     // For now, just switch to map - we'll enhance MapView to handle this
     console.log('Show provider on map:', provider);
+  };
+
+  // Handle ending simulation with confirmation
+  const handleEndSimulation = () => {
+    setRemovedProviders(new Set());
+    setIsSimulationMode(false);
+    setShowResetConfirmation(false);
   };
 
   // Handle clicking on a location in the impact tracker
@@ -451,8 +459,22 @@ export default function Dashboard() {
               {item.name}
             </button>
           ))}
+
+          {/* End Simulation Button */}
+          {isSimulationMode && removedProviders.size > 0 && (
+            <button
+              onClick={() => setShowResetConfirmation(true)}
+              className="w-full px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 border border-rose-500/30 mt-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              End Simulation
+            </button>
+          )}
         </nav>
 
+        {/* User Profile */}
         <div className="pt-3 border-t border-slate-200">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-semibold text-white">AR</div>
@@ -517,6 +539,51 @@ export default function Dashboard() {
           <DashboardView />
         )}
       </div>
+
+      {/* Reset Confirmation Dialog */}
+      {showResetConfirmation && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50"
+            onClick={() => setShowResetConfirmation(false)}
+          />
+
+          {/* Dialog */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md">
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+              {/* Icon */}
+              <div className="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">End Simulation?</h3>
+              <p className="text-sm text-slate-600 mb-6">
+                This will restore all {removedProviders.size} removed provider{removedProviders.size !== 1 ? 's' : ''} and exit simulation mode. This action cannot be undone.
+              </p>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowResetConfirmation(false)}
+                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-all border border-slate-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEndSimulation}
+                  className="flex-1 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-medium transition-all"
+                >
+                  End Simulation
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
